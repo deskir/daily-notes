@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Заметки</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        :root {
+            --bg-primary: #0f0f14;
+            --bg-secondary: #1a1a24;
+            --bg-card: #22222e;
+            --bg-hover: #2a2a38;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-light: #818cf8;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #2d2d3d;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --trash: #6b7280;
+            --shadow: 0 4px 20px rgba(0,0,0,0.4);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        body.light {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-hover: #f1f5f9;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-light: #4f46e5;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 100px;
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* === ШАПКА === */
+        .header {
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            padding-top: max(12px, env(safe-area-inset-top));
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background 0.3s;
+        }
+
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .header-row + .header-row {
+            margin-top: 10px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-light), #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        /* Кнопки действий */
+        .action-bar {
+            display: flex;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .action-bar::-webkit-scrollbar { display: none; }
+
+        .action-btn {
+            flex-shrink: 0;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .action-btn:hover { background: var(--bg-hover); }
+        .action-btn:active { transform: scale(0.96); }
+
+        .action-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+        .action-btn.primary:hover { background: var(--accent-hover); }
+        .action-btn.primary.active { background: var(--danger); border-color: var(--danger); }
+
+        .action-btn.export { background: #059669; border-color: #059669; color: white; }
+        .action-btn.export:hover { background: #047857; }
+
+        .action-btn.import { background: #2563eb; border-color: #2563eb; color: white; }
+        .action-btn.import:hover { background: #1d4ed8; }
+
+        .action-btn.trash { 
+            background: var(--bg-card); 
+            border-color: var(--border);
+            color: var(--text-secondary);
+            position: relative;
+        }
+        .action-btn.trash:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .action-btn.trash.has-items { 
+            background: rgba(239, 68, 68, 0.15); 
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .badge {
+            background: var(--danger);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            margin-left: 4px;
+        }
+
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover { background: var(--bg-card); color: var(--text-primary); }
+
+        /* Поиск */
+        .search-box {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus { border-color: var(--accent); }
+        .search-input::placeholder { color: var(--text-muted); }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Теги-фильтры */
+        .tags-filter {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            border-bottom: 1px solid var(--border);
+        }
+        .tags-filter::-webkit-scrollbar { display: none; }
+
+        .tag-chip {
+            padding: 7px 13px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .tag-chip:hover { background: var(--bg-hover); }
+        .tag-chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+        /* Статистика */
+        .stats {
+            display: flex;
+            gap: 10px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .stats::-webkit-scrollbar { display: none; }
+
+        .stat-card {
+            flex-shrink: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            min-width: 90px;
+            cursor: default;
+            transition: all 0.2s;
+        }
+
+        .stat-card.clickable { cursor: pointer; }
+        .stat-card.clickable:hover { background: var(--bg-hover); transform: translateY(-1px); }
+
+        .stat-value { font-size: 20px; font-weight: 800; color: var(--accent-light); }
+        .stat-label { 
+            font-size: 10px; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            margin-top: 2px;
+            white-space: nowrap;
+        }
+
+        /* Список заметок */
+        .notes-container { padding: 16px; }
+
+        .notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .notes-title { font-size: 16px; font-weight: 700; }
+
+        .sort-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 6px 12px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .notes-grid { display: grid; gap: 12px; }
+
+        .note-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .note-card:hover { background: var(--bg-hover); transform: translateY(-2px); box-shadow: var(--shadow); }
+        .note-card:active { transform: translateY(0); }
+
+        .note-card.pinned { border-left: 4px solid var(--warning); }
+        .note-card.pinned::after {
+            content: '📌';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 14px;
+        }
+
+        .note-card.trashed {
+            opacity: 0.75;
+            border-left: 4px solid var(--trash);
+        }
+        .note-card.trashed::after {
+            content: '🗑️';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 14px;
+        }
+
+        .note-card.selected {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .note-checkbox {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--border);
+            background: var(--bg-card);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            z-index: 2;
+        }
+
+        .note-card.selected .note-checkbox {
+            display: flex;
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .note-card.select-mode { padding-left: 42px; }
+
+        .note-title-text {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            padding-right: 30px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .note-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .note-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .note-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+
+        .note-tag {
+            padding: 3px 8px;
+            background: rgba(99, 102, 241, 0.15);
+            border-radius: 6px;
+            font-size: 11px;
+            color: var(--accent-light);
+        }
+
+        .note-mood { font-size: 16px; }
+
+        .trash-date {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed var(--border);
+        }
+
+        /* Пустое состояние */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon { font-size: 56px; margin-bottom: 12px; opacity: 0.5; }
+        .empty-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary); }
+        .empty-text { font-size: 13px; }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            color: white;
+            font-size: 26px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 90;
+        }
+        .fab:hover { transform: scale(1.1) rotate(90deg); }
+        .fab:active { transform: scale(0.95); }
+
+        /* Панель выбора */
+        .selection-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 95;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+        }
+        .selection-bar.active { display: flex; }
+
+        .selection-info { font-size: 14px; font-weight: 600; }
+        .selection-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .sel-btn {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        .sel-btn-restore { background: var(--success); }
+        .sel-btn-restore:hover { background: #059669; }
+
+        .sel-btn-delete { background: var(--danger); }
+        .sel-btn-delete:hover { background: #dc2626; }
+
+        .sel-btn-export { background: #059669; }
+        .sel-btn-export:hover { background: #047857; }
+
+        .sel-btn-cancel { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+        .sel-btn-cancel:hover { background: var(--bg-hover); }
+
+        /* Модальное окно */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 200;
+            animation: fadeIn 0.2s;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--bg-secondary);
+            width: 100%;
+            max-width: 600px;
+            max-height: 92vh;
+            border-radius: 24px 24px 0 0;
+            padding: 20px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 0 auto 16px;
+        }
+
+        .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 18px; text-align: center; }
+
+        .form-group { margin-bottom: 14px; }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+
+        .form-textarea { min-height: 130px; resize: vertical; line-height: 1.5; }
+
+        .mood-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .mood-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mood-btn:hover { background: var(--bg-hover); }
+        .mood-btn.active {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.15);
+            transform: scale(1.1);
+        }
+
+        .tags-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            min-height: 46px;
+            align-items: center;
+        }
+        .tags-input-container:focus-within { border-color: var(--accent); }
+
+        .tag-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--accent);
+            border-radius: 8px;
+            font-size: 13px;
+            color: white;
+        }
+
+        .tag-remove { cursor: pointer; font-size: 16px; opacity: 0.7; }
+        .tag-remove:hover { opacity: 1; }
+
+        .tag-input {
+            flex: 1;
+            min-width: 100px;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .pin-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 10px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .pin-row input { width: 18px; height: 18px; }
+
+        .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+
+        .btn {
+            flex: 1;
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+
+        .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--bg-hover); }
+
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; }
+
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; }
+
+        .btn-export-note { background: #059669; color: white; }
+        .btn-export-note:hover { background: #047857; }
+
+        /* Формат экспорта */
+        .export-modal .modal { max-height: 70vh; }
+
+        .format-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+
+        .format-option {
+            padding: 15px 10px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .format-option:hover { background: var(--bg-hover); }
+        .format-option.active { border-color: var(--accent); background: rgba(99, 102, 241, 0.1); }
+
+        .format-icon { font-size: 24px; margin-bottom: 5px; }
+        .format-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            box-shadow: var(--shadow-lg);
+            z-index: 300;
+            animation: toastIn 0.3s;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.show { display: block; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        /* Адаптивность */
+        @media (min-width: 768px) {
+            .notes-grid { grid-template-columns: repeat(2, 1fr); }
+            body { padding-bottom: 50px; }
+            .header { padding: 16px 24px; }
+            .action-bar { padding: 12px 24px; }
+            .tags-filter, .stats, .notes-container { padding-left: 24px; padding-right: 24px; }
+        }
+        @media (min-width: 1024px) {
+            .notes-grid { grid-template-columns: repeat(3, 1fr); }
+            .modal { border-radius: 24px; margin: 20px; max-height: 85vh; }
+            .modal-overlay { align-items: center; }
+        }
+
+        .hidden-input { display: none; }
+    </style>
+</head>
+<body>
+    <!-- Шапка: строка 1 - Логотип + Тема -->
+    <div class="header">
+        <div class="header-row">
+            <div class="logo" onclick="exitTrash()">📝 Заметки</div>
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему" id="themeBtn"></button>
+            </div>
+        </div>
+        <!-- Строка 2 - Поиск -->
+        <div class="header-row">
+            <div class="search-box" style="width: 100%;">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="searchInput" placeholder="Поиск по заметкам..." oninput="renderNotes()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Панель действий -->
+    <div class="action-bar">
+        <button class="action-btn primary" id="selectBtn" onclick="toggleSelectMode()">
+            <span>☑️</span>
+            <span>Выбрать</span>
+        </button>
+        <button class="action-btn export" onclick="exportAllNotes()" title="Экспорт всех заметок">
+            <span>💾</span>
+            <span>Экспорт</span>
+        </button>
+        <button class="action-btn import" onclick="document.getElementById('importFile').click()" title="Импорт заметок">
+            <span>📂</span>
+            <span>Импорт</span>
+        </button>
+        <button class="action-btn trash" id="trashBtn" onclick="enterTrash()" title="Корзина">
+            <span>️</span>
+            <span>Корзина</span>
+            <span class="badge" id="trashBadge" style="display: none;">0</span>
+        </button>
+        <input type="file" id="importFile" class="hidden-input" accept=".json,.txt,.md" onchange="importNotes(event)">
+    </div>
+
+    <!-- Фильтры по тегам -->
+    <div class="tags-filter" id="tagsFilter">
+        <div class="tag-chip active" data-tag="all" onclick="filterByTag('all')">Все</div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="stats" id="stats"></div>
+
+    <!-- Список заметок -->
+    <div class="notes-container">
+        <div class="notes-header">
+            <div class="notes-title" id="notesTitle">Все заметки</div>
+            <button class="sort-btn" onclick="toggleSort()">
+                <span id="sortIcon">🕐</span>
+                <span id="sortText">Новые</span>
+            </button>
+        </div>
+        <div class="notes-grid" id="notesGrid"></div>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" id="fabBtn" onclick="openModal()">+</button>
+
+    <!-- Панель выбора -->
+    <div class="selection-bar" id="selectionBar">
+        <div class="selection-info" id="selectionInfo">Выбрано: 0</div>
+        <div class="selection-actions" id="selectionActions"></div>
+    </div>
+
+    <!-- Модальное окно заметки -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title" id="modalTitle">Новая заметка</div>
+            
+            <div class="form-group">
+                <label class="form-label">Заголовок</label>
+                <input type="text" class="form-input" id="noteTitle" placeholder="О чём заметка?">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Текст</label>
+                <textarea class="form-textarea" id="noteText" placeholder="Запиши свои мысли..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Настроение</label>
+                <div class="mood-selector" id="moodSelector">
+                    <button class="mood-btn" data-mood="😊" onclick="selectMood('😊')">😊</button>
+                    <button class="mood-btn" data-mood="🤔" onclick="selectMood('🤔')">🤔</button>
+                    <button class="mood-btn" data-mood="💡" onclick="selectMood('💡')">💡</button>
+                    <button class="mood-btn" data-mood="😤" onclick="selectMood('😤')">😤</button>
+                    <button class="mood-btn" data-mood="🎉" onclick="selectMood('🎉')">🎉</button>
+                    <button class="mood-btn" data-mood="😴" onclick="selectMood('😴')">😴</button>
+                    <button class="mood-btn" data-mood="🔥" onclick="selectMood('🔥')">🔥</button>
+                    <button class="mood-btn" data-mood="❤️" onclick="selectMood('❤️')">❤️</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Теги (Enter для добавления)</label>
+                <div class="tags-input-container" onclick="document.getElementById('tagInput').focus()">
+                    <div id="tagsList"></div>
+                    <input type="text" class="tag-input" id="tagInput" placeholder="Добавить тег..." onkeydown="handleTagInput(event)">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="pin-row">
+                    <input type="checkbox" id="notePinned">
+                    <span>📌 Закрепить заметку</span>
+                </label>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="saveNote()">Сохранить</button>
+            </div>
+            <div class="modal-actions" id="editActions" style="display: none;">
+                <button class="btn btn-export-note" onclick="exportSingleNote()">💾 Экспорт</button>
+                <button class="btn btn-danger" onclick="trashCurrentNote()">🗑️ В корзину</button>
+            </div>
+            <div class="modal-actions" id="trashActions" style="display: none;">
+                <button class="btn btn-success" onclick="restoreCurrentNote()">♻️ Восстановить</button>
+                <button class="btn btn-danger" onclick="deleteCurrentNoteForever()">🔥 Удалить навсегда</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно формата экспорта -->
+    <div class="modal-overlay export-modal" id="exportModalOverlay" onclick="closeExportModal(event)">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title">Выбери формат экспорта</div>
+            <div class="format-options">
+                <div class="format-option active" onclick="selectFormat('json')">
+                    <div class="format-icon">📋</div>
+                    <div class="format-name">JSON</div>
+                </div>
+                <div class="format-option" onclick="selectFormat('txt')">
+                    <div class="format-icon">📄</div>
+                    <div class="format-name">TXT</div>
+                </div>
+                <div class="format-option" onclick="selectFormat('md')">
+                    <div class="format-icon">📝</div>
+                    <div class="format-name">Markdown</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeExportModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="confirmExport()">Экспортировать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // === СОСТОЯНИЕ ===
+        let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+        let trash = JSON.parse(localStorage.getItem('trash') || '[]');
+        let currentFilter = 'all';
+        let currentSort = 'newest';
+        let currentMood = '';
+        let currentTags = [];
+        let editingId = null;
+        let selectMode = false;
+        let selectedIds = new Set();
+        let selectedFormat = 'json';
+        let exportTarget = null;
+        let exportNoteId = null;
+        let inTrash = false;
+
+        // === ТЕМА ===
+        function initTheme() {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'light') {
+                document.body.classList.add('light');
+                document.getElementById('themeBtn').textContent = '☀️';
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light');
+            const isLight = document.body.classList.contains('light');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            document.getElementById('themeBtn').textContent = isLight ? '☀️' : '🌙';
+            showToast(isLight ? '☀️ Светлая тема' : '🌙 Тёмная тема');
+        }
+
+        // === АВТООЧИСТКА КОРЗИНЫ (30 дней) ===
+        function autoCleanTrash() {
+            const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+            const before = trash.length;
+            trash = trash.filter(n => n.deletedAt > thirtyDaysAgo);
+            if (trash.length !== before) {
+                saveToStorage();
+                showToast(`🧹 Удалено ${before - trash.length} старых заметок из корзины`);
+            }
+        }
+
+        // === ИНИЦИАЛИЗАЦИЯ ===
+        function init() {
+            initTheme();
+            autoCleanTrash();
+            renderNotes();
+            renderTagsFilter();
+            renderStats();
+            updateTrashBadge();
+        }
+
+        // === КОРЗИНА ===
+        function enterTrash() {
+            inTrash = true;
+            document.getElementById('notesTitle').textContent = '🗑️ Корзина';
+            document.getElementById('fabBtn').style.display = 'none';
+            document.getElementById('tagsFilter').style.display = 'none';
+            document.getElementById('trashBtn').classList.add('has-items');
+            currentFilter = 'all';
+            exitSelectMode();
+            renderNotes();
+            renderStats();
+        }
+
+        function exitTrash() {
+            if (!inTrash) return;
+            inTrash = false;
+            document.getElementById('notesTitle').textContent = 'Все заметки';
+            document.getElementById('fabBtn').style.display = 'flex';
+            document.getElementById('tagsFilter').style.display = 'flex';
+            document.getElementById('trashBtn').classList.remove('has-items');
+            currentFilter = 'all';
+            exitSelectMode();
+            renderNotes();
+            renderTagsFilter();
+            renderStats();
+        }
+
+        function moveToTrash(id) {
+            const idx = notes.findIndex(n => n.id === id);
+            if (idx === -1) return;
+            const note = notes[idx];
+            note.deletedAt = Date.now();
+            trash.push(note);
+            notes.splice(idx, 1);
+            saveToStorage();
+            updateTrashBadge();
+        }
+
+        function restoreFromTrash(id) {
+            const idx = trash.findIndex(n => n.id === id);
+            if (idx === -1) return;
+            const note = trash[idx];
+            delete note.deletedAt;
+            note.updatedAt = Date.now();
+            notes.push(note);
+            trash.splice(idx, 1);
+            saveToStorage();
+            updateTrashBadge();
+        }
+
+        function deleteForever(id) {
+            trash = trash.filter(n => n.id !== id);
+            saveToStorage();
+            updateTrashBadge();
+        }
+
+        function emptyTrash() {
+            if (trash.length === 0) { showToast('Корзина пуста'); return; }
+            if (!confirm(`Удалить навсегда ${trash.length} заметок? Это нельзя отменить!`)) return;
+            trash = [];
+            saveToStorage();
+            updateTrashBadge();
+            renderNotes();
+            renderStats();
+            showToast('🗑️ Корзина очищена');
+        }
+
+        function restoreAll() {
+            if (trash.length === 0) { showToast('Корзина пуста'); return; }
+            if (!confirm(`Восстановить все ${trash.length} заметок?`)) return;
+            trash.forEach(note => {
+                delete note.deletedAt;
+                note.updatedAt = Date.now();
+                notes.push(note);
+            });
+            trash = [];
+            saveToStorage();
+            updateTrashBadge();
+            renderNotes();
+            renderStats();
+            showToast(`♻️ Восстановлено заметок`);
+        }
+
+        function updateTrashBadge() {
+            const badge = document.getElementById('trashBadge');
+            const btn = document.getElementById('trashBtn');
+            if (trash.length > 0) {
+                badge.style.display = 'inline-flex';
+                badge.textContent = trash.length > 99 ? '99+' : trash.length;
+                btn.classList.add('has-items');
+            } else {
+                badge.style.display = 'none';
+                btn.classList.remove('has-items');
+            }
+        }
+
+        // === РЕЖИМ ВЫБОРА ===
+        function toggleSelectMode() {
+            selectMode = !selectMode;
+            const btn = document.getElementById('selectBtn');
+            const bar = document.getElementById('selectionBar');
+            
+            if (selectMode) {
+                btn.classList.add('active');
+                btn.innerHTML = '<span>✖️</span><span>Отмена</span>';
+                bar.classList.add('active');
+                updateSelectionActions();
+            } else {
+                exitSelectMode();
+            }
+            renderNotes();
+        }
+
+        function exitSelectMode() {
+            selectMode = false;
+            selectedIds.clear();
+            const btn = document.getElementById('selectBtn');
+            btn.classList.remove('active');
+            btn.innerHTML = '<span>☑️</span><span>Выбрать</span>';
+            document.getElementById('selectionBar').classList.remove('active');
+            renderNotes();
+        }
+
+        function updateSelectionActions() {
+            const actions = document.getElementById('selectionActions');
+            if (inTrash) {
+                actions.innerHTML = `
+                    <button class="sel-btn sel-btn-restore" onclick="restoreSelected()">️</button>
+                    <button class="sel-btn sel-btn-delete" onclick="deleteSelectedForever()">🔥</button>
+                    <button class="sel-btn sel-btn-cancel" onclick="exitSelectMode()">Отмена</button>
+                `;
+            } else {
+                actions.innerHTML = `
+                    <button class="sel-btn sel-btn-export" onclick="exportSelected()">💾</button>
+                    <button class="sel-btn sel-btn-delete" onclick="trashSelected()">🗑️</button>
+                    <button class="sel-btn sel-btn-cancel" onclick="exitSelectMode()">Отмена</button>
+                `;
+            }
+        }
+
+        function toggleSelectNote(id) {
+            if (selectedIds.has(id)) selectedIds.delete(id);
+            else selectedIds.add(id);
+            updateSelectionInfo();
+            renderNotes();
+        }
+
+        function updateSelectionInfo() {
+            document.getElementById('selectionInfo').textContent = `Выбрано: ${selectedIds.size}`;
+        }
+
+        // === РЕНДЕР ЗАМЕТОК ===
+        function renderNotes() {
+            const grid = document.getElementById('notesGrid');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const source = inTrash ? trash : notes;
+            
+            let filtered = source.filter(note => {
+                const matchSearch = !search || 
+                    ((note.title || '').toLowerCase().includes(search)) || 
+                    ((note.text || '').toLowerCase().includes(search)) ||
+                    (note.tags || []).some(t => t.toLowerCase().includes(search));
+                const matchTag = currentFilter === 'all' || (note.tags || []).includes(currentFilter);
+                return matchSearch && matchTag;
+            });
+
+            filtered.sort((a, b) => {
+                if (!inTrash) {
+                    if (a.pinned && !b.pinned) return -1;
+                    if (!a.pinned && b.pinned) return 1;
+                }
+                if (currentSort === 'newest') return b.updatedAt - a.updatedAt;
+                if (currentSort === 'oldest') return a.updatedAt - b.updatedAt;
+                if (currentSort === 'alpha') return (a.title || '').localeCompare(b.title || '');
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-icon">${inTrash ? '🗑️' : '📝'}</div>
+                        <div class="empty-title">${inTrash ? 'Корзина пуста' : (search ? 'Ничего не найдено' : 'Пока нет заметок')}</div>
+                        <div class="empty-text">${inTrash ? 'Удалённые заметки появятся здесь' : (search ? 'Попробуй другой запрос' : 'Нажми + чтобы создать первую')}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(note => {
+                const isSelected = selectedIds.has(note.id);
+                const deletedDays = note.deletedAt ? Math.floor((Date.now() - note.deletedAt) / (1000 * 60 * 60 * 24)) : null;
+                return `
+                <div class="note-card ${note.pinned && !inTrash ? 'pinned' : ''} ${inTrash ? 'trashed' : ''} ${selectMode ? 'select-mode' : ''} ${isSelected ? 'selected' : ''}" 
+                     onclick="${selectMode ? `toggleSelectNote('${note.id}')` : `openNote('${note.id}')`}">
+                    <div class="note-checkbox">${isSelected ? '✓' : ''}</div>
+                    <div class="note-title-text">${escapeHtml(note.title) || 'Без названия'}</div>
+                    <div class="note-text">${escapeHtml(note.text || '')}</div>
+                    <div class="note-meta">
+                        <div class="note-tags">
+                            ${(note.tags || []).slice(0, 3).map(t => `<span class="note-tag">#${escapeHtml(t)}</span>`).join('')}
+                            ${(note.tags || []).length > 3 ? `<span class="note-tag">+${(note.tags || []).length - 3}</span>` : ''}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${note.mood ? `<span class="note-mood">${note.mood}</span>` : ''}
+                            <span>${formatDate(note.updatedAt)}</span>
+                        </div>
+                    </div>
+                    ${inTrash && deletedDays !== null ? `<div class="trash-date">Удалено ${deletedDays === 0 ? 'сегодня' : deletedDays + ' дн. назад'} • Осталось ${30 - deletedDays} дн.</div>` : ''}
+                </div>
+            `}).join('');
+        }
+
+        // === ТЕГИ-ФИЛЬТРЫ ===
+        function renderTagsFilter() {
+            const allTags = new Set();
+            notes.forEach(n => (n.tags || []).forEach(t => allTags.add(t)));
+            
+            const container = document.getElementById('tagsFilter');
+            container.innerHTML = `<div class="tag-chip ${currentFilter === 'all' ? 'active' : ''}" onclick="filterByTag('all')">Все</div>`;
+            
+            allTags.forEach(tag => {
+                container.innerHTML += `<div class="tag-chip ${currentFilter === tag ? 'active' : ''}" onclick="filterByTag('${escapeHtml(tag)}')">#${escapeHtml(tag)}</div>`;
+            });
+        }
+
+        function filterByTag(tag) {
+            currentFilter = tag;
+            renderTagsFilter();
+            renderNotes();
+            document.getElementById('notesTitle').textContent = tag === 'all' ? (inTrash ? '🗑️ Корзина' : 'Все заметки') : `#${tag}`;
+        }
+
+        // === СТАТИСТИКА ===
+        function renderStats() {
+            const total = notes.length;
+            const pinned = notes.filter(n => n.pinned).length;
+            const today = notes.filter(n => {
+                const d = new Date(n.updatedAt);
+                const now = new Date();
+                return d.toDateString() === now.toDateString();
+            }).length;
+            
+            // ИСПРАВЛЕНИЕ: считаем теги корректно
+            const allTags = new Set();
+            notes.forEach(n => {
+                if (n.tags && Array.isArray(n.tags)) {
+                    n.tags.forEach(t => allTags.add(t));
+                }
+            });
+            const tagsCount = allTags.size;
+
+            if (inTrash) {
+                document.getElementById('stats').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${trash.length}</div>
+                        <div class="stat-label">В корзине</div>
+                    </div>
+                    <div class="stat-card clickable" onclick="restoreAll()">
+                        <div class="stat-value" style="color: var(--success);">♻️</div>
+                        <div class="stat-label">Восстановить все</div>
+                    </div>
+                    <div class="stat-card clickable" onclick="emptyTrash()">
+                        <div class="stat-value" style="color: var(--danger);">️</div>
+                        <div class="stat-label">Очистить корзину</div>
+                    </div>
+                `;
+            } else {
+                document.getElementById('stats').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${total}</div>
+                        <div class="stat-label">Всего</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${today}</div>
+                        <div class="stat-label">Сегодня</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${pinned}</div>
+                        <div class="stat-label">Закреплено</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${tagsCount}</div>
+                        <div class="stat-label">Тегов</div>
+                    </div>
+                    <div class="stat-card clickable" onclick="enterTrash()">
+                        <div class="stat-value" style="color: var(--trash);">${trash.length}</div>
+                        <div class="stat-label">В корзине</div>
+                    </div>
+                `;
+            }
+        }
+
+        // === МОДАЛЬНОЕ ОКНО ===
+        function openModal() {
+            if (inTrash) return;
+            editingId = null;
+            currentMood = '';
+            currentTags = [];
+            document.getElementById('modalTitle').textContent = 'Новая заметка';
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteText').value = '';
+            document.getElementById('notePinned').checked = false;
+            document.getElementById('editActions').style.display = 'none';
+            document.getElementById('trashActions').style.display = 'none';
+            updateMoodUI();
+            updateTagsUI();
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function openNote(id) {
+            const source = inTrash ? trash : notes;
+            const note = source.find(n => n.id === id);
+            if (!note) return;
+            
+            editingId = id;
+            currentMood = note.mood || '';
+            currentTags = [...(note.tags || [])];
+            document.getElementById('modalTitle').textContent = inTrash ? 'Заметка в корзине' : 'Редактировать';
+            document.getElementById('noteTitle').value = note.title || '';
+            document.getElementById('noteText').value = note.text || '';
+            document.getElementById('notePinned').checked = note.pinned;
+            
+            if (inTrash) {
+                document.getElementById('editActions').style.display = 'none';
+                document.getElementById('trashActions').style.display = 'flex';
+            } else {
+                document.getElementById('editActions').style.display = 'flex';
+                document.getElementById('trashActions').style.display = 'none';
+            }
+            
+            updateMoodUI();
+            updateTagsUI();
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function closeModalOnOverlay(e) {
+            if (e.target === e.currentTarget) closeModal();
+        }
+
+        // === НАСТРОЕНИЕ ===
+        function selectMood(mood) {
+            currentMood = currentMood === mood ? '' : mood;
+            updateMoodUI();
+        }
+
+        function updateMoodUI() {
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mood === currentMood);
+            });
+        }
+
+        // === ТЕГИ ===
+        function handleTagInput(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = e.target.value.trim();
+                if (val && !currentTags.includes(val)) {
+                    currentTags.push(val);
+                    updateTagsUI();
+                }
+                e.target.value = '';
+            } else if (e.key === 'Backspace' && !e.target.value && currentTags.length) {
+                currentTags.pop();
+                updateTagsUI();
+            }
+        }
+
+        function removeTag(tag) {
+            currentTags = currentTags.filter(t => t !== tag);
+            updateTagsUI();
+        }
+
+        function updateTagsUI() {
+            document.getElementById('tagsList').innerHTML = currentTags.map(t => 
+                `<div class="tag-item">#${escapeHtml(t)} <span class="tag-remove" onclick="removeTag('${escapeHtml(t)}')">×</span></div>`
+            ).join('');
+        }
+
+        // === СОХРАНЕНИЕ ===
+        function saveNote() {
+            if (inTrash) return;
+            const title = document.getElementById('noteTitle').value.trim();
+            const text = document.getElementById('noteText').value.trim();
+            const pinned = document.getElementById('notePinned').checked;
+
+            if (!title && !text) {
+                showToast('⚠️ Заметка пустая!');
+                return;
+            }
+
+            const now = Date.now();
+            
+            if (editingId) {
+                const idx = notes.findIndex(n => n.id === editingId);
+                if (idx !== -1) {
+                    notes[idx] = { ...notes[idx], title, text, mood: currentMood, tags: currentTags, pinned, updatedAt: now };
+                }
+                showToast('✅ Заметка обновлена');
+            } else {
+                notes.push({
+                    id: 'note_' + now + '_' + Math.random().toString(36).substr(2, 9),
+                    title, text, mood: currentMood, tags: currentTags, pinned,
+                    createdAt: now, updatedAt: now
+                });
+                showToast('✅ Заметка создана');
+            }
+
+            saveToStorage();
+            closeModal();
+            renderNotes();
+            renderTagsFilter();
+            renderStats();
+        }
+
+        function trashCurrentNote() {
+            if (!editingId) return;
+            if (!confirm('Переместить заметку в корзину?')) return;
+            moveToTrash(editingId);
+            closeModal();
+            renderNotes();
+            renderTagsFilter();
+            renderStats();
+            showToast('🗑️ Заметка в корзине');
+        }
+
+        function restoreCurrentNote() {
+            if (!editingId) return;
+            restoreFromTrash(editingId);
+            closeModal();
+            renderNotes();
+            renderStats();
+            showToast('♻️ Заметка восстановлена');
+        }
+
+        function deleteCurrentNoteForever() {
+            if (!editingId) return;
+            if (!confirm('Удалить заметку НАВСЕГДА? Это нельзя отменить!')) return;
+            deleteForever(editingId);
+            closeModal();
+            renderNotes();
+            renderStats();
+            showToast(' Заметка удалена навсегда');
+        }
+
+        function toggleSort() {
+            const sorts = ['newest', 'oldest', 'alpha'];
+            const labels = { newest: 'Новые', oldest: 'Старые', alpha: 'А-Я' };
+            const icons = { newest: '🕐', oldest: '⏳', alpha: '🔤' };
+            const idx = sorts.indexOf(currentSort);
+            currentSort = sorts[(idx + 1) % sorts.length];
+            document.getElementById('sortText').textContent = labels[currentSort];
+            document.getElementById('sortIcon').textContent = icons[currentSort];
+            renderNotes();
+        }
+
+        // === МАССОВЫЕ ДЕЙСТВИЯ ===
+        function trashSelected() {
+            if (selectedIds.size === 0) { showToast('️ Ничего не выбрано'); return; }
+            if (!confirm(`Переместить ${selectedIds.size} заметок в корзину?`)) return;
+            selectedIds.forEach(id => moveToTrash(id));
+            exitSelectMode();
+            renderNotes();
+            renderTagsFilter();
+            renderStats();
+            showToast(`🗑️ В корзине: ${selectedIds.size} заметок`);
+        }
+
+        function restoreSelected() {
+            if (selectedIds.size === 0) { showToast('⚠️ Ничего не выбрано'); return; }
+            if (!confirm(`Восстановить ${selectedIds.size} заметок?`)) return;
+            selectedIds.forEach(id => restoreFromTrash(id));
+            exitSelectMode();
+            renderNotes();
+            renderStats();
+            showToast(`♻️ Восстановлено: ${selectedIds.size}`);
+        }
+
+        function deleteSelectedForever() {
+            if (selectedIds.size === 0) { showToast('⚠️ Ничего не выбрано'); return; }
+            if (!confirm(`Удалить НАВСЕГДА ${selectedIds.size} заметок?`)) return;
+            selectedIds.forEach(id => deleteForever(id));
+            exitSelectMode();
+            renderNotes();
+            renderStats();
+            showToast(`🔥 Удалено навсегда: ${selectedIds.size}`);
+        }
+
+        // === ЭКСПОРТ ===
+        function exportAllNotes() {
+            if (notes.length === 0 && !inTrash) { showToast('⚠️ Нет заметок'); return; }
+            exportTarget = inTrash ? 'trash' : 'all';
+            openExportModal();
+        }
+
+        function exportSelected() {
+            if (selectedIds.size === 0) { showToast('⚠️ Ничего не выбрано'); return; }
+            exportTarget = 'selected';
+            openExportModal();
+        }
+
+        function exportSingleNote() {
+            if (!editingId) return;
+            exportTarget = 'single';
+            exportNoteId = editingId;
+            closeModal();
+            setTimeout(() => openExportModal(), 200);
+        }
+
+        function openExportModal() {
+            document.querySelectorAll('.format-option').forEach(el => el.classList.remove('active'));
+            document.querySelector('.format-option').classList.add('active');
+            selectedFormat = 'json';
+            document.getElementById('exportModalOverlay').classList.add('active');
+        }
+
+        function closeExportModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            document.getElementById('exportModalOverlay').classList.remove('active');
+        }
+
+        function selectFormat(format) {
+            selectedFormat = format;
+            document.querySelectorAll('.format-option').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        function confirmExport() {
+            let notesToExport = [];
+            let filename = '';
+
+            if (exportTarget === 'all') {
+                notesToExport = notes;
+                filename = `all_notes_${getDateStr()}`;
+            } else if (exportTarget === 'trash') {
+                notesToExport = trash;
+                filename = `trash_notes_${getDateStr()}`;
+            } else if (exportTarget === 'selected') {
+                const source = inTrash ? trash : notes;
+                notesToExport = source.filter(n => selectedIds.has(n.id));
+                filename = `selected_notes_${getDateStr()}`;
+            } else if (exportTarget === 'single') {
+                notesToExport = notes.filter(n => n.id === exportNoteId);
+                const note = notesToExport[0];
+                filename = `${note.title || 'note'}_${getDateStr()}`;
+            }
+
+            let content, mime, ext;
+
+            if (selectedFormat === 'json') {
+                const data = {
+                    version: 1,
+                    exportedAt: new Date().toISOString(),
+                    count: notesToExport.length,
+                    notes: notesToExport
+                };
+                content = JSON.stringify(data, null, 2);
+                mime = 'application/json';
+                ext = 'json';
+            } else if (selectedFormat === 'txt') {
+                content = notesToExport.map(n => {
+                    const header = n.title || 'Без названия';
+                    const mood = n.mood ? `[${n.mood}] ` : '';
+                    const tags = (n.tags || []).length ? `\nТеги: ${(n.tags || []).map(t => '#' + t).join(', ')}` : '';
+                    const pinned = n.pinned ? '\n📌 Закреплено' : '';
+                    const date = new Date(n.updatedAt).toLocaleString('ru-RU');
+                    const deleted = n.deletedAt ? `\n🗑️ Удалено: ${new Date(n.deletedAt).toLocaleString('ru-RU')}` : '';
+                    return `${mood}${header}\n${'='.repeat(40)}\n${n.text || ''}${tags}${pinned}${deleted}\n\n${date}\n${'─'.repeat(40)}`;
+                }).join('\n\n');
+                mime = 'text/plain';
+                ext = 'txt';
+            } else if (selectedFormat === 'md') {
+                content = `# Экспорт заметок\n\nДата: ${new Date().toLocaleString('ru-RU')}\nКоличество: ${notesToExport.length}\n\n---\n\n` +
+                    notesToExport.map(n => {
+                        const title = n.title || 'Без названия';
+                        const mood = n.mood ? ` ${n.mood}` : '';
+                        const tags = (n.tags || []).length ? `\n\n**Теги:** ${(n.tags || []).map(t => '`#' + t + '`').join(' ')}` : '';
+                        const pinned = n.pinned ? '\n\n> 📌 Закреплено' : '';
+                        const deleted = n.deletedAt ? `\n\n> 🗑️ Удалено: ${new Date(n.deletedAt).toLocaleString('ru-RU')}` : '';
+                        const date = `\n\n*${new Date(n.updatedAt).toLocaleString('ru-RU')}*`;
+                        return `## ${title}${mood}${tags}${pinned}${deleted}${date}\n\n${n.text || ''}`;
+                    }).join('\n\n---\n\n');
+                mime = 'text/markdown';
+                ext = 'md';
+            }
+
+            const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.${ext}`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            closeExportModal();
+            showToast(`📤 Экспортировано ${notesToExport.length} заметок в ${ext.toUpperCase()}`);
+            
+            if (exportTarget === 'selected') exitSelectMode();
+        }
+
+        function getDateStr() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        // === ИМПОРТ ===
+        function importNotes(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    let importedNotes = [];
+
+                    if (ext === 'json') {
+                        const data = JSON.parse(e.target.result);
+                        if (!data.notes || !Array.isArray(data.notes)) throw new Error('Неверный формат JSON');
+                        importedNotes = data.notes;
+                    } else if (ext === 'txt' || ext === 'md') {
+                        const text = e.target.result;
+                        const blocks = text.split(/\n{3,}─{10,}|\n\n---\n\n/);
+                        blocks.forEach(block => {
+                            block = block.trim();
+                            if (!block) return;
+                            
+                            const titleMatch = block.match(/^#{1,2}\s+(.+?)(?:\s+[😊🤔💡😤🔥❤️😴])?$/m) || 
+                                              block.match(/^(.+?)\n={10,}/m);
+                            let title = titleMatch ? titleMatch[1].replace(/^[\[\(].*?[\]\)]\s*/, '').trim() : '';
+
+                            const tagsMatch = block.match(/Теги:\s*(.+)/i) || block.match(/\*\*Теги:\*\*\s*(.+)/i);
+                            let tags = tagsMatch ? tagsMatch[1].split(/[, ]+/).filter(t => t.startsWith('#')).map(t => t.slice(1)) : [];
+
+                            const moodMatch = block.match(/^([😊🤔💡😤🎉😴🔥❤️])/m);
+                            let mood = moodMatch ? moodMatch[1] : '';
+
+                            const textStart = title ? block.indexOf(title) + title.length : 0;
+                            const textEnd = block.search(/Теги:|📌|️|\*\d{2}\.\d{2}/i);
+                            let text = block.substring(textStart, textEnd > 0 ? textEnd : undefined)
+                                .replace(/^[\s\n=─#]+/, '')
+                                .replace(/\n\*[^*]+\*$/, '')
+                                .trim();
+
+                            if (title || text) {
+                                importedNotes.push({
+                                    id: 'note_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                                    title, text, mood, tags,
+                                    pinned: block.includes(''),
+                                    createdAt: Date.now(),
+                                    updatedAt: Date.now()
+                                });
+                            }
+                        });
+
+                        if (importedNotes.length === 0) throw new Error('Не удалось распознать заметки');
+                    } else {
+                        throw new Error('Неподдерживаемый формат');
+                    }
+
+                    const mode = confirm(
+                        `Найдено ${importedNotes.length} заметок.\n\n` +
+                        `OK — Добавить к существующим\n` +
+                        `Отмена — Заменить все заметки`
+                    );
+
+                    if (mode) {
+                        const existingIds = new Set(notes.map(n => n.id));
+                        const newNotes = importedNotes.filter(n => !existingIds.has(n.id));
+                        notes = [...notes, ...newNotes];
+                        showToast(`📥 Добавлено ${newNotes.length} заметок`);
+                    } else {
+                        notes = importedNotes;
+                        showToast(` Импортировано ${notes.length} заметок`);
+                    }
+
+                    saveToStorage();
+                    renderNotes();
+                    renderTagsFilter();
+                    renderStats();
+                } catch (err) {
+                    showToast('❌ Ошибка: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // === УТИЛИТЫ ===
+        function saveToStorage() {
+            localStorage.setItem('notes', JSON.stringify(notes));
+            localStorage.setItem('trash', JSON.stringify(trash));
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+            }[m]));
+        }
+
+        function formatDate(ts) {
+            const d = new Date(ts);
+            const now = new Date();
+            const diff = now - d;
+            
+            if (diff < 60000) return 'только что';
+            if (diff < 3600000) return `${Math.floor(diff/60000)} мин назад`;
+            if (diff < 86400000) return `${Math.floor(diff/3600000)} ч назад`;
+            if (d.toDateString() === now.toDateString()) return 'сегодня';
+            
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (d.toDateString() === yesterday.toDateString()) return 'вчера';
+            
+            return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // Горячие клавиши
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeExportModal();
+                if (selectMode) exitSelectMode();
+                if (inTrash) exitTrash();
+            }
+            if (e.ctrlKey && e.key === 'n') { e.preventDefault(); openModal(); }
+        });
+
+        // Запуск
+        init();
+    </script>
+</body>
+</html>
